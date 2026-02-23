@@ -17,7 +17,7 @@ In addition to the 3D-printed holder, you will need:
 - **Open Source:** Built with OpenSCAD code that is easy to read and modify.
 - **Ready to Print:** Includes a sample STL file (pre-sized for 20×8 mm magnets).
 
-**Just want the STL?** Download the ready-to-print file from the [Releases](releases) page — no Git or GitHub account needed.
+**Just want the STL?** Download the ready-to-print file from the [Releases](https://github.com/jimmb5/OpenPlateHolder/releases) page — no Git or GitHub account needed.
 
 ## How to Customize
 
