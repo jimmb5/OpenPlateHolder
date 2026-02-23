@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OpenPlate Holder — Swap Your Plate in Seconds</title>
+  <meta name="description" content="Magnetic car license plate holder. 3D-print your own mount, swap your plate in seconds. Open-source, parametric, free.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;1,700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #080808;
+      --bg2: #101010;
+      --bg3: #161618;
+      --border: #222226;
+      --text: #f5f5f5;
+      --muted: #888;
+      --amber: #f59e0b;
+      --amber2: #fbbf24;
+      --red: #ef4444;
+      --r: 10px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Barlow', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { text-decoration: none; color: inherit; }
+
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(8,8,8,0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 1.25rem; letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .nav-logo span { color: var(--amber); }
+    .nav-links { display: flex; gap: 2rem; }
+    .nav-links a { font-size: 0.9rem; font-weight: 500; color: var(--muted); transition: color 0.15s; }
+    .nav-links a:hover { color: var(--text); }
+    .nav-cta {
+      background: var(--amber); color: #000;
+      padding: 0.5rem 1.25rem; border-radius: 6px;
+      font-weight: 700; font-size: 0.875rem; letter-spacing: 0.02em;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+    .nav-cta:hover { background: var(--amber2); box-shadow: 0 0 20px rgba(245,158,11,0.35); }
+
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column; justify-content: center;
+      padding: 8rem 2rem 5rem;
+      position: relative; overflow: hidden;
+    }
+    .hero-bg-line {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 80px),
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 1px, transparent 1px, transparent 80px);
+      pointer-events: none;
+    }
+    .hero-glow {
+      position: absolute; top: 20%; left: 50%; transform: translateX(-50%);
+      width: 900px; height: 500px;
+      background: radial-gradient(ellipse at center, rgba(245,158,11,0.12) 0%, transparent 65%);
+      pointer-events: none;
+    }
+    .hero-content { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; width: 100%; }
+
+    .hero-kicker {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.875rem; font-weight: 700; letter-spacing: 0.15em;
+      text-transform: uppercase; color: var(--amber);
+      background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.25);
+      padding: 0.35rem 0.9rem; border-radius: 100px;
+      margin-bottom: 1.5rem;
+    }
+    .hero-kicker::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--amber); }
+
+    .hero h1 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(3.5rem, 9vw, 7rem);
+      font-weight: 800;
+      line-height: 0.95;
+      letter-spacing: -0.01em;
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+    .hero h1 em {
+      font-style: italic;
+      -webkit-text-stroke: 2px var(--amber);
+      color: transparent;
+    }
+
+    .hero-sub {
+      font-size: 1.2rem; color: var(--muted); max-width: 540px;
+      line-height: 1.6; margin-bottom: 2.5rem;
+    }
+    .hero-sub strong { color: var(--text); }
+
+    .hero-cta-row {
+      display: flex; flex-wrap: wrap; gap: 1rem; align-items: center;
+      margin-bottom: 4rem;
+    }
+    .btn-xl {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      padding: 1rem 2.25rem;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.125rem; font-weight: 700; letter-spacing: 0.06em;
+      text-transform: uppercase; border-radius: 8px;
+      transition: transform 0.15s, box-shadow 0.15s, background 0.15s;
+      border: none; cursor: pointer;
+    }
+    .btn-xl:active { transform: scale(0.97); }
+    .btn-xl.primary { background: var(--amber); color: #000; }
+    .btn-xl.primary:hover { background: var(--amber2); box-shadow: 0 0 30px rgba(245,158,11,0.4); }
+    .btn-xl.ghost { background: transparent; color: var(--text); border: 1.5px solid var(--border); }
+    .btn-xl.ghost:hover { border-color: var(--muted); background: var(--bg3); }
+
+    .hero-stats {
+      display: flex; flex-wrap: wrap; gap: 2.5rem;
+    }
+    .stat { display: flex; flex-direction: column; gap: 0.15rem; }
+    .stat-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 2rem; font-weight: 800; color: var(--amber);
+    }
+    .stat-label { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+
+    .marquee-bar {
+      background: var(--amber);
+      padding: 0.75rem 0;
+      overflow: hidden; white-space: nowrap;
+    }
+    .marquee-inner {
+      display: inline-block;
+      animation: marquee 25s linear infinite;
+    }
+    .marquee-inner span {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.85rem; font-weight: 800;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: #000; padding: 0 2rem;
+    }
+    .marquee-inner span::after { content: '·'; padding-left: 2rem; }
+    @keyframes marquee { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+    .section { padding: 6rem 0; }
+    .section-kicker {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--amber); margin-bottom: 0.75rem;
+    }
+    .section-title {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800; text-transform: uppercase;
+      letter-spacing: 0.01em; line-height: 1;
+      margin-bottom: 1rem;
+    }
+    .section-title em { font-style: italic; color: var(--amber); }
+    .section-desc { color: var(--muted); max-width: 520px; line-height: 1.65; }
+
+    .steps {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem; margin-top: 3.5rem;
+    }
+    .step {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: 14px; padding: 2rem;
+      position: relative; overflow: hidden;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .step:hover { border-color: rgba(245,158,11,0.4); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+    .step-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 5rem; font-weight: 800;
+      color: rgba(245,158,11,0.08); line-height: 1;
+      position: absolute; top: 0.75rem; right: 1rem;
+      pointer-events: none;
+    }
+    .step-icon {
+      width: 48px; height: 48px;
+      background: rgba(245,158,11,0.12); border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.25rem; color: var(--amber);
+    }
+    .step h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.25rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: 0.5rem;
+    }
+    .step p { color: var(--muted); font-size: 0.95rem; line-height: 1.55; }
+
+    .bento {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 1rem; margin-top: 3.5rem;
+    }
+    .bento-cell {
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: 14px; padding: 2rem;
+      transition: border-color 0.2s;
+    }
+    .bento-cell:hover { border-color: rgba(245,158,11,0.3); }
+    .bento-cell.wide { grid-column: span 2; }
+    .bento-cell.accent { background: linear-gradient(135deg, rgba(245,158,11,0.12), var(--bg2)); border-color: rgba(245,158,11,0.2); }
+    .bento-icon { margin-bottom: 1rem; }
+    .bento-cell h3 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 1.35rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.04em;
+      margin-bottom: 0.5rem;
+    }
+    .bento-cell h3 span { color: var(--amber); }
+    .bento-cell p { color: var(--muted); font-size: 0.95rem; line-height: 1.6; }
+    .bento-wide-inner {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 2rem; align-items: center;
+    }
+    .code-block {
+      background: #0d0d0d; border: 1px solid var(--border);
+      border-radius: 10px; padding: 1.25rem;
+      font-family: 'Courier New', monospace; font-size: 0.82rem;
+      line-height: 1.8; color: #ccc;
+    }
+    .code-block .c { color: #555; }
+    .code-block .k { color: var(--amber); }
+    .code-block .n { color: #7dd3fc; }
+    .code-block .v { color: #a3e635; }
+
+    .parts-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem; margin-top: 3rem;
+    }
+    .part {
+      display: flex; gap: 1rem; align-items: flex-start;
+      background: var(--bg2); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 1.5rem;
+    }
+    .part-icon {
+      width: 42px; height: 42px; flex-shrink: 0;
+      background: var(--bg3); border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      border: 1px solid var(--border); color: var(--amber);
+    }
+    .part-body h4 { font-weight: 600; font-size: 1rem; margin-bottom: 0.25rem; }
+    .part-body p { color: var(--muted); font-size: 0.875rem; line-height: 1.5; }
+    .part-body a { color: var(--amber); }
+    .part-body a:hover { text-decoration: underline; }
+
+    .specs-table {
+      width: 100%; border-collapse: collapse; margin-top: 2.5rem;
+    }
+    .specs-table th {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 0.8rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted);
+      text-align: left; padding: 0.75rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .specs-table td {
+      padding: 1rem; border-bottom: 1px solid var(--border);
+      font-size: 0.95rem;
+    }
+    .specs-table tr:last-child td { border-bottom: none; }
+    .specs-table tr:hover td { background: var(--bg2); }
+    .specs-table td:first-child { color: var(--muted); width: 35%; }
+    .tag {
+      display: inline-block; font-size: 0.78rem; font-weight: 600;
+      padding: 0.2rem 0.6rem; border-radius: 100px;
+      background: rgba(245,158,11,0.1); color: var(--amber);
+      border: 1px solid rgba(245,158,11,0.2);
+    }
+    .tag.green {
+      background: rgba(74,222,128,0.1); color: #4ade80;
+      border-color: rgba(74,222,128,0.2);
+    }
+
+    .download-section {
+      background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(8,8,8,0) 60%);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .download-inner {
+      display: flex; flex-wrap: wrap; align-items: center;
+      justify-content: space-between; gap: 2rem;
+      padding: 5rem 0;
+    }
+    .download-copy h2 {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 800; text-transform: uppercase;
+      line-height: 1; margin-bottom: 0.75rem;
+    }
+    .download-copy h2 em { font-style: italic; color: var(--amber); }
+    .download-copy p { color: var(--muted); max-width: 400px; }
+    .download-actions { display: flex; flex-direction: column; gap: 0.75rem; align-items: flex-start; }
+    .note-text { font-size: 0.8rem; color: var(--muted); }
+    .note-text strong { color: var(--text); }
+
+    footer {
+      padding: 3rem 0;
+      border-top: 1px solid var(--border);
+    }
+    .footer-inner {
+      display: flex; flex-wrap: wrap;
+      justify-content: space-between; align-items: center; gap: 1.5rem;
+    }
+    .footer-logo {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-weight: 800; font-size: 1.1rem; letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .footer-logo span { color: var(--amber); }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a { font-size: 0.875rem; color: var(--muted); transition: color 0.15s; }
+    .footer-links a:hover { color: var(--amber); }
+    .footer-right { font-size: 0.8rem; color: var(--muted); }
+
+    @media (max-width: 700px) {
+      nav { padding: 0.875rem 1.25rem; }
+      .nav-links { display: none; }
+      .hero { padding: 7rem 1.25rem 4rem; }
+      .bento { grid-template-columns: 1fr; }
+      .bento-cell.wide { grid-column: span 1; }
+      .bento-wide-inner { grid-template-columns: 1fr; }
+      .download-inner { flex-direction: column; }
+      .wrap { padding: 0 1.25rem; }
+      .section { padding: 4rem 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo">Open<span>Plate</span></div>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#customize">Customize</a>
+      <a href="#print">Print it</a>
+    </div>
+    <a href="https://github.com/jimmb5/OpenPlateHolder/releases" class="nav-cta">Download STL</a>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-bg-line"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-kicker">Open Source · Free · 3D Printable</div>
+      <h1>
+        Swap Your<br>
+        Plate in<br>
+        <em>Seconds.</em>
+      </h1>
+      <p class="hero-sub">
+        A <strong>magnetic license plate mount</strong> you 3D-print yourself. No tools, no screws — just snap on and drive. Fully parametric, so it fits your plate and your magnets.
+      </p>
+      <div class="hero-cta-row">
+        <a href="https://github.com/jimmb5/OpenPlateHolder/releases" class="btn-xl primary">Get the STL — Free</a>
+        <a href="https://github.com/jimmb5/OpenPlateHolder" class="btn-xl ghost">View Source</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">20 mm</span><span class="stat-label">Default magnet size</span></div>
+        <div class="stat"><span class="stat-num">&lt; 5 min</span><span class="stat-label">Plate swap time</span></div>
+        <div class="stat"><span class="stat-num">0 €</span><span class="stat-label">License. Forever free.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="marquee-bar" aria-hidden="true">
+    <div class="marquee-inner">
+      <span>Magnetic Plate Mount</span><span>3D Print Ready</span><span>Open Source</span>
+      <span>OpenSCAD Parametric</span><span>No Supports Needed</span><span>MIT License</span>
+      <span>Swap In Seconds</span><span>Magnetic Plate Mount</span><span>3D Print Ready</span>
+      <span>Open Source</span><span>OpenSCAD Parametric</span><span>No Supports Needed</span>
+      <span>MIT License</span><span>Swap In Seconds</span>
+    </div>
+  </div>
+
+  <section class="section" id="how">
+    <div class="wrap">
+      <div class="section-kicker">How it works</div>
+      <h2 class="section-title">Print. Mount. <em>Snap.</em></h2>
+      <p class="section-desc">Three steps from zero to a plate you can swap with one hand, in any weather.</p>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">01</div>
+          <div class="step-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+          </div>
+          <h3>Print the holder</h3>
+          <p>Download the STL and slice it in your favourite slicer. No supports needed, flat on the bed. Done in under 2 hours.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">02</div>
+          <div class="step-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7v1h-4v-1a3 3 0 0 0-6 0v1H5V9a7 7 0 0 1 7-7z"/><rect x="5" y="10" width="4" height="8" rx="1"/><rect x="15" y="10" width="4" height="8" rx="1"/></svg>
+          </div>
+          <h3>Press in the magnet</h3>
+          <p>Press your 20 mm magnet into the recessed pocket. Add a drop of superglue for a permanent, clean fit.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">03</div>
+          <div class="step-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v9a2 2 0 0 1-2 2h-2"/><circle cx="9" cy="17" r="2"/><circle cx="17" cy="17" r="2"/></svg>
+          </div>
+          <h3>Stick it to the car</h3>
+          <p>Attach the holder to the bumper with double-sided tape. Stick the metal counterpart to your plate — done.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">04</div>
+          <div class="step-icon">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </div>
+          <h3>Swap in seconds</h3>
+          <p>Pull, swap, snap. Change plates in under five seconds, no tools, no screws, no stress.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="customize" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-kicker">Customize it</div>
+      <h2 class="section-title">Your magnet. <em>Your size.</em></h2>
+      <p class="section-desc">Every dimension is a variable. Got a different magnet? Change one number. Wider plate? Change one number.</p>
+      <div class="bento">
+        <div class="bento-cell accent">
+          <div class="bento-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="color:var(--amber)"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+          </div>
+          <h3>Parametric <span>design</span></h3>
+          <p>Width, depth, plate thickness, magnet diameter and height — all adjustable in a single file. Render and export in minutes with OpenSCAD.</p>
+        </div>
+        <div class="bento-cell">
+          <div class="bento-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" style="color:var(--amber)"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <h3>Open <span>source</span></h3>
+          <p>MIT licensed. Read the source, fork it, remix it, sell prints. No strings attached.</p>
+        </div>
+        <div class="bento-cell wide">
+          <div class="bento-wide-inner">
+            <div>
+              <h3>Edit these <span>4 numbers</span></h3>
+              <p style="color:var(--muted); margin-top: 0.5rem; font-size: 0.95rem;">Download <a href="https://openscad.org/" style="color:var(--amber)">OpenSCAD</a> (free), open the file, change what you need. Hit F6 → F7 and your custom STL is ready.</p>
+            </div>
+            <div class="code-block">
+<span class="c">// Plate size</span>
+<span class="n">width</span>    <span class="k">=</span> <span class="v">60</span><span class="c">; // mm</span>
+<span class="n">depth</span>    <span class="k">=</span> <span class="v">25.5</span><span class="c">; // mm</span>
+
+<span class="c">// Magnet size</span>
+<span class="n">magnet_d</span> <span class="k">=</span> <span class="v">20</span><span class="c">; // diameter mm</span>
+<span class="n">magnet_h</span> <span class="k">=</span> <span class="v">8</span><span class="c">; // height mm</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-kicker">What you need</div>
+      <h2 class="section-title">Four parts. <em>That's it.</em></h2>
+      <div class="parts-grid">
+        <div class="part">
+          <div class="part-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7v1h-4v-1a3 3 0 0 0-6 0v1H5V9a7 7 0 0 1 7-7z"/><rect x="5" y="10" width="4" height="8" rx="1"/><rect x="15" y="10" width="4" height="8" rx="1"/></svg>
+          </div>
+          <div class="part-body">
+            <h4>Magnets</h4>
+            <p>20 mm × 8 mm disc magnets. Strong neodymium recommended. (STL pre-sized for these.)</p>
+          </div>
+        </div>
+        <div class="part">
+          <div class="part-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div class="part-body">
+            <h4>Metal counterparts</h4>
+            <p>Steel discs or plates mounted to the car. The holder (with magnet) attaches to the plate — the counterpart stays on the vehicle.</p>
+          </div>
+        </div>
+        <div class="part">
+          <div class="part-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9l-6-6z"/><path d="M9 3v6h6"/><line x1="12" y1="12" x2="12" y2="18"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          </div>
+          <div class="part-body">
+            <h4>Superglue</h4>
+            <p>A single drop keeps the magnet locked in the pocket permanently. Tight press-fit + glue = rock solid.</p>
+          </div>
+        </div>
+        <div class="part">
+          <div class="part-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="10" rx="2"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="7" y1="7" x2="7" y2="17"/></svg>
+          </div>
+          <div class="part-body">
+            <h4>Double-sided tape</h4>
+            <p>To stick the holder to the bumper. <a href="https://www.motonet.fi/tuote/gorilla-hd-mounting-tape-kaksipuolinen-asennusteippi-254-mm-15-m?product=75-00417" target="_blank" rel="noopener">Gorilla Heavy Duty Mounting Tape</a> is a proven choice.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="print" style="padding-top: 0;">
+    <div class="wrap">
+      <div class="section-kicker">3D Printing</div>
+      <h2 class="section-title">Slice and <em>go.</em></h2>
+      <table class="specs-table">
+        <thead>
+          <tr>
+            <th>Setting</th>
+            <th>Recommended</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Orientation</td>
+            <td>Flat on build plate</td>
+            <td><span class="tag green">No rotation needed</span></td>
+          </tr>
+          <tr>
+            <td>Material</td>
+            <td>PLA · PETG · ABS</td>
+            <td>PETG recommended for outdoor / summer heat</td>
+          </tr>
+          <tr>
+            <td>Infill</td>
+            <td>20% or more</td>
+            <td>Grid or gyroid works great</td>
+          </tr>
+          <tr>
+            <td>Supports</td>
+            <td>None</td>
+            <td><span class="tag green">Support-free geometry</span></td>
+          </tr>
+          <tr>
+            <td>Layer height</td>
+            <td>0.2 mm</td>
+            <td>0.15 mm for a cleaner chamfer surface</td>
+          </tr>
+          <tr>
+            <td>Print time (est.)</td>
+            <td>~1.5–2 h</td>
+            <td>At 0.2 mm, 40 mm/s</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <div class="download-section">
+    <div class="wrap">
+      <div class="download-inner">
+        <div class="download-copy">
+          <h2>Ready to print.<br><em>Download free.</em></h2>
+          <p>Grab the STL directly from the Releases page. No account. No sign-up. Just download and slice.</p>
+        </div>
+        <div class="download-actions">
+          <a href="https://github.com/jimmb5/OpenPlateHolder/releases" class="btn-xl primary">Download STL — Free</a>
+          <a href="https://github.com/jimmb5/OpenPlateHolder" class="btn-xl ghost">View Source on GitHub</a>
+          <p class="note-text"><strong>Pre-sized</strong> for 20 × 8 mm magnets · MIT License · Forever free</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="wrap">
+      <div class="footer-inner">
+        <div class="footer-logo">Open<span>Plate</span> </div>
+        <div class="footer-links">
+          <a href="https://github.com/jimmb5/OpenPlateHolder">GitHub</a>
+          <a href="https://github.com/jimmb5/OpenPlateHolder/releases">Releases</a>
+          <a href="https://github.com/jimmb5/OpenPlateHolder/blob/main/README.md">README</a>
+          <a href="https://openscad.org/" target="_blank" rel="noopener">OpenSCAD</a>
+        </div>
+        <div class="footer-right">MIT License · Use it, mod it, share it.</div>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>
